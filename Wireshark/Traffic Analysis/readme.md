@@ -82,3 +82,21 @@ Identify users and hostnames from authentication traffic.
 ## ⚠️ Note
 This writeup focuses on learning concepts and methodology.  
 Sensitive details such as actual answers, flags, or target-specific data are intentionally omitted.
+
+
+
+# Tunnelling Traffic: ICMP and DNS (TryHackMe)
+
+## 🧠 Objective
+Learn how attackers may abuse ICMP and DNS protocols to tunnel traffic, hide communication, or transfer data through trusted network protocols.
+
+---
+
+# 🔍 ICMP Tunnelling Analysis
+
+ICMP is normally used for diagnostics (such as ping), but attackers may misuse it to carry hidden traffic.
+
+## Suspicious ICMP Filter
+
+wireshark
+(data.len > 64) and (icmp contains "ssh" or icmp contains "ftp" or icmp contains "tcp" or icmp contains "http")
