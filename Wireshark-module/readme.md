@@ -11,7 +11,7 @@ Have added some stuff, but still all credits goes to the [TryHackMe](https://try
 
 Wireshark, a tool used for creating and analyzing PCAPs (network packet capture files), is commonly used as one of the best packet analysis tools. In this room, we will look at the basics of installing Wireshark and using it to perform basic packet analysis and take a deep look at each common networking protocol.
 
-![alt text](C:/Users/Shuaib/Pictures/wireshark_logo.png "Wireshark logo")
+![alt text](C:\Users\Shuaib\Pictures\wireshark_logo.png "Wireshark logo")
 
 PCAPs used in this room have been sourced from the Wireshark Sample Captures Page as well as captures from various members of the TryHackMe community. All credit goes to the respective owners.
 
@@ -31,7 +31,7 @@ The installation for Wireshark is very easy and typically comes with a packaged 
 
 If you are using Linux you can install Wireshark with `apt-get install wireshark` or a similar package manager.
 
-![alt text](C:/Users/Shuaib/Pictures/wireshark_shark.png "Shark Logo")
+![alt text](C:\Users\Shuaib\Pictures\wireshark_shark.png "Shark Logo")
 
 Note: Wireshark can come with other packages and tools; you can decide whether or not you want to install them along with Wireshark.
 
