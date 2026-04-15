@@ -100,3 +100,93 @@ ICMP is normally used for diagnostics (such as ping), but attackers may misuse i
 
 wireshark
 (data.len > 64) and (icmp contains "ssh" or icmp contains "ftp" or icmp contains "tcp" or icmp contains "http")
+
+
+# Cleartext Protocol Analysis: FTP
+
+--> Request = client
+--> Response = server
+
+response has one key attribute: Code
+request has two attribute: Command & Argument(arg)
+  - Commands are like: USER, PASS, CWD, LIST, MKD, RMD, MTDM, SITE, SIZE
+  
+## Overview
+FTP is used to transfer files but standard FTP does not encrypt usernames, passwords, or file data. This makes it useful to analyze in Wireshark and risky in insecure networks.
+
+## Risks
+- Credential theft
+- Unauthorized access
+- MITM attacks
+- Malware upload/download
+- Data exfiltration
+
+## Basic Filter
+ftp
+
+## FTP Response Codes
+
+### x1x Information
+- 211 = System status
+- 212 = Directory status
+- 213 = File status
+
+Filter:
+ftp.response.code == 211
+
+### x2x Connection
+- 220 = Service ready
+- 227 = Entering passive mode
+- 228 = Long passive mode
+- 229 = Extended passive mode
+
+Filter:
+ftp.response.code == 227
+
+### x3x Authentication
+- 230 = Login success
+- 231 = Logout
+- 331 = Username valid, need password
+- 430 = Invalid username/password
+- 530 = Not logged in / invalid password
+
+Filter:
+ftp.response.code == 230
+
+## FTP Commands
+
+Username:
+ftp.request.command == "USER"
+
+Password:
+ftp.request.command == "PASS"
+
+Specific password:
+ftp.request.arg == "password"
+
+Other commands:
+- CWD = Change directory
+- LIST = List files
+
+## Threat Hunting
+
+Failed logins:
+ftp.response.code == 530
+
+Failed logins for target username:
+(ftp.response.code == 530) and (ftp.response.arg contains "username")
+
+Password spray:
+(ftp.request.command == "PASS") and (ftp.request.arg == "password")
+
+## What I Learned
+- FTP sends data in cleartext
+- USER and PASS may expose credentials
+- Response codes reveal login behavior
+- Repeated failures may indicate brute-force attempts
+
+## Recommendation
+Use secure alternatives:
+- SFTP
+- FTPS
+- SCP
